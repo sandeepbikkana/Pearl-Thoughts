@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_employee_social_handles",
+  "info": {
+    "displayName": "SocialHandle"
+  },
+  "options": {},
+  "attributes": {
+    "platform": {
+      "type": "string"
+    },
+    "handle": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}
