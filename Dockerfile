@@ -5,19 +5,22 @@ FROM node:20 AS build
 
 WORKDIR /app
 
-# Copy package files first to use build cache
+# Copy only package files first (better Docker caching)
 COPY package.json package-lock.json* ./
+
+# Install required Linux esbuild binary BEFORE full install
+RUN npm install esbuild --platform=linux --force
 
 # Install dependencies
 RUN npm ci
 
-# Copy entire project including .env
+# Copy full project (includes .env)
 COPY . .
 
 # Ensure Strapi CLI is executable
 RUN chmod +x node_modules/.bin/strapi
 
-# Build Strapi Admin Panel (uses .env automatically)
+# Build Strapi Admin Panel
 RUN npm run build
 
 
@@ -30,7 +33,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy everything from build stage
+# Copy everything from the build stage
 COPY --from=build /app /app
 
 # Expose Strapi port

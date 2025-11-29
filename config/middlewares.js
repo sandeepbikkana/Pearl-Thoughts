@@ -1,4 +1,4 @@
-module.exports = [
+module.exports = ({ env }) => [
   "strapi::logger",
   "strapi::errors",
 
@@ -8,12 +8,10 @@ module.exports = [
       enabled: true,
       origin: [
         env("CORS_ORIGIN", "http://localhost:3000"),
-        env("PUBLIC_URL"),         // allow Strapi admin domain
-        env("FRONTEND_URL"),       // allow frontend domain
-        "*",                       // DEV ONLY — remove in prod
+        env("PUBLIC_URL"),
+        env("FRONTEND_URL"),
+        "*" // dev only
       ],
-      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
-      headers: ["Content-Type", "Authorization", "Origin", "Accept"],
     },
   },
 
