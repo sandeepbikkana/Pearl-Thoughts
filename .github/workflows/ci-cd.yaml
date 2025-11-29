@@ -1,4 +1,4 @@
-name: Deploy Strapi to EC2
+name: strapi-AWS
 
 on:
   push:
@@ -9,27 +9,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # ----------------------------
+      # 1. Checkout repository
+      # ----------------------------
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      # ----------------------------
+      # 2. Configure AWS Credentials
+      # ----------------------------
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: ap-south-1
 
-      - name: Login to ECR
+      # ----------------------------
+      # 3. Login to AWS ECR
+      # ----------------------------
+      - name: Login to AWS ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build & Push Image
+      # ----------------------------
+      # 4. Build & Push Docker Image
+      # ----------------------------
+      - name: Build and Push Image to ECR
         run: |
-          IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/strapi:${{ github.sha }}"
-          docker build -t $IMAGE .
-          docker push $IMAGE
-          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+          ECR_REPO="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/strapi-app"
+          IMAGE_TAG="${GITHUB_SHA}"
+          docker build -t $ECR_REPO:$IMAGE_TAG .
+          docker push $ECR_REPO:$IMAGE_TAG
+          echo "IMAGE=$ECR_REPO:$IMAGE_TAG" >> $GITHUB_ENV
 
-      - name: Deploy to EC2 via SSH
+      # ----------------------------
+      # 5. Deploy to EC2 (SSH)
+      # ----------------------------
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_PUBLIC_IP }}
@@ -37,20 +53,25 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             sudo docker pull ${{ env.IMAGE }}
+
             sudo docker stop strapi || true
             sudo docker rm strapi || true
 
             sudo docker run -d \
               --name strapi \
               -p 80:1337 \
+              -e NODE_ENV=production \
+              -e PUBLIC_URL="http://${{ secrets.EC2_PUBLIC_IP }}" \
+              -e APP_KEYS="${{ secrets.APP_KEYS }}" \
+              -e API_TOKEN_SALT="${{ secrets.API_TOKEN_SALT }}" \
+              -e ADMIN_JWT_SECRET="${{ secrets.ADMIN_JWT_SECRET }}" \
+              -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
               -e DATABASE_CLIENT=postgres \
-              -e DATABASE_HOST=${{ secrets.DB_HOST }} \
+              -e DATABASE_HOST="${{ secrets.DB_HOST }}" \
               -e DATABASE_PORT=5432 \
-              -e DATABASE_NAME=strapidb \
-              -e DATABASE_USERNAME=${{ secrets.DB_USER }} \
-              -e DATABASE_PASSWORD=${{ secrets.DB_PASS }} \
-              -e AWS_ACCESS_KEY_ID=${{ secrets.S3_KEY }} \
-              -e AWS_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET }} \
-              -e AWS_REGION=ap-south-1 \
-              -e AWS_S3_BUCKET=${{ secrets.S3_BUCKET }} \
+              -e DATABASE_NAME="postgres" \
+              -e DATABASE_USERNAME="postgres" \
+              -e DATABASE_PASSWORD="${{ secrets.DB_PASS }}" \
+              -e AWS_REGION=us-east-1 \
+              -e AWS_S3_BUCKET="${{ secrets.S3_BUCKET }}" \
               ${{ env.IMAGE }}

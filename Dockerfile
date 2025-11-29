@@ -1,96 +1,47 @@
-# # 1. BUILDER STAGE
-
-# FROM node:20-alpine AS builder
-
-# # Required for Strapi node-gyp builds
-# RUN apk add --no-cache python3 make g++ git
-
-# WORKDIR /app
-
-# # Install production + dev deps
-# COPY package*.json ./
-# RUN npm ci
-
-# # Copy full source
-# COPY . .
-
-# # Remove old caches (VERY IMPORTANT)
-# RUN rm -rf .cache build node_modules/.cache
-
-# # Build admin panel
-# RUN npm run build
-
-# # Remove dev dependencies → final image is smaller
-# RUN npm prune --production
-
-
-# # 2. RUNNER STAGE (final image)
-
-# FROM node:20-alpine AS runner
-
-# WORKDIR /app
-
-# # Security: run as non-root user
-# RUN addgroup -S strapi && adduser -S -G strapi strapi
-
-# # Copy only built output
-# COPY --from=builder --chown=strapi:strapi /app ./
-
-# ENV NODE_ENV=production
-
-# # Cloud Run exposes port 8080 → Strapi must run on 1337 but Cloud Run maps it automatically
-# EXPOSE 1337
-
-# USER strapi
-
-# CMD ["npm", "start"]
-
-
-
-
-# 1. BUILDER STAGE
-
-FROM node:20-alpine AS builder
-
-# Required for Strapi node-gyp builds
-RUN apk add --no-cache python3 make g++ git
+# -----------------------------
+# 1) BUILD STAGE
+# -----------------------------
+FROM node:20 AS build
 
 WORKDIR /app
 
-# Install production + dev deps
-COPY package*.json ./
-RUN npm ci
+COPY package.json package-lock.json* ./
 
-# Copy full source
+# Install ALL deps (dev + prod)
+RUN npm install
+
+# Copy full project
 COPY . .
 
-# Remove old caches (VERY IMPORTANT)
-RUN rm -rf .cache build node_modules/.cache
+# Required for Strapi admin build
+ENV APP_KEY1=80312f8ef997d69c7db4c88451ebb4c28c1f5d6e6e9aa8ce07b4e8c6adc65cab
+ENV APP_KEY2=4431ca21f193793b0277f84d36b114806758716cb59dfa4d83bdd182429b985c
+ENV APP_KEY3=c95f9ae8512f2fa39aafdb4b307fb387529a0f3b373588438fe4f8c1d3acf280
+ENV APP_KEY4=cf4cf21e52921666578e85dc3d85c0c8ff375142d182a85a6cfdce64a0179f51
+ENV API_TOKEN_SALT=Va7y+6mNUmvIqOPypz/Kgg==
+ENV ADMIN_JWT_SECRET=LntuLZeB8TIfGI0kG8jXFw==
+ENV JWT_SECRET=9P0X30yd3Yln7RZ4H0V1Vg==
+ENV TRANSFER_TOKEN_SALT=bazggOYtpQEIG8CLkVtZbg==
+ENV ENCRYPTION_KEY=i3qGi2TOLTtalc7ToVu0Zg==
+# Ensure Strapi binary is executable
+RUN chmod +x /app/node_modules/.bin/strapi
 
-# Build admin panel
+# Build admin UI
 RUN npm run build
 
-# Remove dev dependencies → final image is smaller
-RUN npm prune --production
 
 
-# 2. RUNNER STAGE (final image)
-
-FROM node:20-alpine AS runner
+# -----------------------------
+# 2) RUNTIME STAGE
+# -----------------------------
+FROM node:20-alpine
 
 WORKDIR /app
-
-# Security: run as non-root user
-RUN addgroup -S strapi && adduser -S -G strapi strapi
-
-# Copy only built output
-COPY --from=builder --chown=strapi:strapi /app ./
 
 ENV NODE_ENV=production
 
-# Cloud Run exposes port 8080 → Strapi must run on 1337 but Cloud Run maps it automatically
-EXPOSE 1337
+COPY --from=build /app /app
 
-USER strapi
+EXPOSE 1337
 
 CMD ["npm", "start"]

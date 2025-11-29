@@ -1,5 +1,4 @@
-
-require("dotenv").config();
+// require("dotenv").config();
 
 module.exports = ({ env }) => {
   const isProd = env("NODE_ENV") === "production";
