@@ -5,6 +5,10 @@ FROM node:20 AS build
 
 WORKDIR /app
 
+# Accept PUBLIC_URL at build time
+ARG PUBLIC_URL
+ENV PUBLIC_URL=$PUBLIC_URL
+
 # Copy only package files first (better Docker caching)
 COPY package.json package-lock.json* ./
 
@@ -20,7 +24,7 @@ COPY . .
 # Ensure Strapi CLI is executable
 RUN chmod +x node_modules/.bin/strapi
 
-# Build Strapi Admin Panel
+# Build Strapi Admin Panel using PUBLIC_URL
 RUN npm run build
 
 
