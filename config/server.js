@@ -7,7 +7,7 @@ module.exports = ({ env }) => ({
   /**
    * PUBLIC_URL must be set when running behind EC2 or load balancer
    */
-  url: env("PUBLIC_URL", null),  // IMPORTANT: null instead of localhost
+  url: env("PUBLIC_URL", "http://3.110.54.166"),  // IMPORTANT: null instead of localhost
 
   proxy: true, // required when behind reverse proxy or EC2 + ALB
 

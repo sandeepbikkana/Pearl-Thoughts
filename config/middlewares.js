@@ -8,7 +8,7 @@ module.exports = ({ env }) => [
       enabled: true,
       origin: [
         env("CORS_ORIGIN", "http://localhost:3000"),
-        env("PUBLIC_URL"),
+        env("PUBLIC_URL", "http://3.110.54.166"),
         env("FRONTEND_URL"),
         "*" // dev only
       ],
