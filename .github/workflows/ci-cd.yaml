@@ -36,7 +36,7 @@ jobs:
       # ----------------------------
       - name: Build and Push Image to ECR
         run: |
-          ECR_REPO="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/strapi-app"
+          ECR_REPO="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com/strapi-app"
           IMAGE_TAG="${GITHUB_SHA}"
           docker build -t $ECR_REPO:$IMAGE_TAG .
           docker push $ECR_REPO:$IMAGE_TAG
