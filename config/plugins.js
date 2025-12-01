@@ -1,3 +1,5 @@
+
+
 module.exports = ({ env }) => ({
   upload: {
     config: {
@@ -5,13 +7,14 @@ module.exports = ({ env }) => ({
       providerOptions: {
         s3Options: {
           credentials: {
-            accessKeyId: env("S3_KEY"),
-            secretAccessKey: env("S3_SECRET"),
+            accessKeyId: env("AWS_ACCESS_KEY_ID"),
+            secretAccessKey: env("AWS_SECRET_ACCESS_KEY"),
           },
           region: env("AWS_REGION", "ap-south-1"),
         },
         bucket: env("AWS_S3_BUCKET"),
         basePath: "",
+        prefix: "",
       },
     },
   },
