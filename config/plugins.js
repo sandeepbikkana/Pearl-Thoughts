@@ -5,13 +5,13 @@ module.exports = ({ env }) => ({
       providerOptions: {
         s3Options: {
           credentials: {
-            accessKeyId: env("S3_KEY"),
-            secretAccessKey: env("S3_SECRET"),
+            accessKeyId: env("AWS_ACCESS_KEY_ID"),
+            secretAccessKey: env("AWS_SECRET_ACCESS_KEY"),
           },
-          region: env("AWS_REGION"),
+          region: env("AWS_REGION", "ap-south-1"),
         },
-        bucket: env("S3_BUCKET","strapi-dev-uploads-feecd53b"),
-        baseUrl: env("S3_BASE_URL", null),   // optional
+        bucket: env("AWS_S3_BUCKET","strapi-dev-uploads-feecd53b"),
+        basePath: "",
       },
     },
   },

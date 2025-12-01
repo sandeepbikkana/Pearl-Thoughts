@@ -7,11 +7,11 @@ module.exports = ({ env }) => [
     config: {
       enabled: true,
       origin: [
-        env("CORS_ORIGIN", "http://localhost:3000"),
-        env("PUBLIC_URL", "http://52.66.238.201"),
-        env("FRONTEND_URL"),
-        "*" // dev only
+        env("PUBLIC_URL", `http://${env("EC2_PUBLIC_IP")}`),
+        env("FRONTEND_URL", "*"),
       ],
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      headers: ["*"],
     },
   },
 
