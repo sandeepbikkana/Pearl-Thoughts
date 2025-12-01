@@ -5,12 +5,12 @@ module.exports = ({ env }) => ({
       providerOptions: {
         s3Options: {
           credentials: {
-            accessKeyId: env("AWS_ACCESS_KEY_ID"),
-            secretAccessKey: env("AWS_SECRET_ACCESS_KEY"),
+            accessKeyId: env("S3_KEY"),
+            secretAccessKey: env("S3_SECRET"),
           },
           region: env("AWS_REGION", "ap-south-1"),
         },
-        bucket: env("AWS_S3_BUCKET","strapi-dev-uploads-feecd53b"),
+        bucket: env("AWS_S3_BUCKET"),
         basePath: "",
       },
     },
@@ -18,7 +18,7 @@ module.exports = ({ env }) => ({
 
   "users-permissions": {
     config: {
-      jwtSecret: env("JWT_SECRET") || env("APP_KEYS"),
+      jwtSecret: env("JWT_SECRET"),
     },
   },
 });
