@@ -9,10 +9,12 @@ module.exports = ({ env }) => ({
             secretAccessKey: env('S3_SECRET'),
           },
           region: env('AWS_REGION', 'ap-south-1'),
+          params: {
+            Bucket: env('AWS_S3_BUCKET'),
+          },
         },
-        bucket: env('AWS_S3_BUCKET'),
-        baseUrl: env('CLOUDFRONT_URL', null), // Optional CDN
         basePath: '',
+        baseUrl: env('CLOUDFRONT_URL', null), // Optional CDN/CloudFront URL
       },
     },
   },
