@@ -2,7 +2,7 @@
 module.exports = ({ env }) => ({
   upload: {
     config: {
-      provider: "aws-s3",
+      provider: "aws-s3-v5",
       providerOptions: {
         s3Options: {
           credentials: {
