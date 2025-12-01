@@ -1,25 +1,25 @@
-
 module.exports = ({ env }) => ({
   upload: {
     config: {
-      provider: "aws-s3-v5",
+      provider: '@strapi/provider-upload-aws-s3',
       providerOptions: {
         s3Options: {
           credentials: {
-            accessKeyId: env("S3_KEY"),
-            secretAccessKey: env("S3_SECRET"),
+            accessKeyId: env('S3_KEY'),
+            secretAccessKey: env('S3_SECRET'),
           },
-          region: env("AWS_REGION", "ap-south-1"),
+          region: env('AWS_REGION', 'ap-south-1'),
         },
-        bucket: env("AWS_S3_BUCKET"),
-        basePath: "",
+        bucket: env('AWS_S3_BUCKET'),
+        baseUrl: env('CLOUDFRONT_URL', null), // Optional CDN
+        basePath: '',
       },
     },
   },
 
-  "users-permissions": {
+  'users-permissions': {
     config: {
-      jwtSecret: env("JWT_SECRET"),
+      jwtSecret: env('JWT_SECRET'),
     },
   },
 });
